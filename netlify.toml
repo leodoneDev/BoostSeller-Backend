@@ -1,0 +1,9 @@
+[build]
+command = "npx prisma generate && next build"
+publish = ".next"
+
+[dev]
+command = "next dev"
+
+[functions]
+included_files = ["prisma/schema.prisma", "node_modules/.prisma/client/**/*"]
