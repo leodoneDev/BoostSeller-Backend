@@ -1,17 +1,17 @@
 
 import nodemailer from 'nodemailer';
+import { PrismaClient } from '@prisma/client';
+const prisma = new PrismaClient();
 
 export async function POST(req: Request) {
   try {
     const { email } = await req.json();
-
-    if (!email) {
-      return new Response(JSON.stringify({ error: 'Email is required' }), {
-        status: 400,
-      });
-    }
-
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const expires = new Date(Date.now() + 5 * 60 * 1000);
+    
+    await prisma.otp.create({
+        data: { email, code: otp, expiresAt: expires,},
+      });
 
     const transporter = nodemailer.createTransport({
       service: 'gmail',
@@ -30,14 +30,14 @@ export async function POST(req: Request) {
 
     // Optional: Save OTP to database with expiry or cache it
 
-    return new Response(JSON.stringify({ message: 'OTP sent', otp }), {
+    return new Response(JSON.stringify({error: false,  message: 'Please check your email!' }), {
       status: 200,
     });
   } catch (error) {
     console.error('Error sending OTP:', error);
     return new Response(
-      JSON.stringify({ error: 'Failed to send OTP' }),
-      { status: 500 }
+      JSON.stringify({ error: true, message: 'Failed to send OTP' }),
+      {}
     );
   }
 }
