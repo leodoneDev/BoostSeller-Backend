@@ -30,13 +30,13 @@ export async function POST(req: Request) {
 
     // Optional: Save OTP to database with expiry or cache it
 
-    return new Response(JSON.stringify({error: false,  message: 'Please check your email!' }), {
+    return new Response(JSON.stringify({error: false,  message: 'OTP sent successfully! \n Please check your email.' }), {
       status: 200,
     });
   } catch (error) {
     console.error('Error sending OTP:', error);
     return new Response(
-      JSON.stringify({ error: true, message: 'Failed to send OTP' }),
+      JSON.stringify({ error: true, message: 'Failed to send OTP. \n Please try again.' }),
       {}
     );
   }

@@ -9,7 +9,7 @@ export async function POST(req: Request) {
     // Check for existing user
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
-      return new Response(JSON.stringify({ error: true, message: 'User already exists' }), {
+      return new Response(JSON.stringify({ error: true, message: 'User already exists.' }), {
       });
     }
 
@@ -33,7 +33,6 @@ export async function POST(req: Request) {
       status: 201,
     });
   } catch (err) {
-    // return new Response(JSON.stringify({ error: true, message: err }));
-    console.log(err);
+    return new Response(JSON.stringify({ error: true, message: 'Failed to register. \n Please try again.' }));
   }
 }

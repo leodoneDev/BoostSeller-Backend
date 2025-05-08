@@ -14,16 +14,16 @@ export async function POST(req: Request) {
     });
 
     if (!otpRecord) {
-      return new Response(JSON.stringify({ error: 'Invalid or expired OTP' }), { status: 400 });
+      return new Response(JSON.stringify({ error: true, message: 'Invalid or expired OTP.' }), {});
     }
 
     // Optional: delete OTP after successful use
     await prisma.otp.delete({ where: { id: otpRecord.id } });
 
-    return new Response(JSON.stringify({ message: 'OTP verified' }), { status: 200 });
+    return new Response(JSON.stringify({ error: false, message: 'OTP verified!' }), { status: 200 });
   } catch (err) {
     console.error(err);
-    return new Response(JSON.stringify({ error: 'OTP verification failed' }), { status: 500 });
+    return new Response(JSON.stringify({ error: true, message: 'OTP verification failed. \n Please try again.' }), {});
   }
 }
 
