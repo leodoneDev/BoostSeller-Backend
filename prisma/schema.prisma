@@ -57,7 +57,7 @@ model Lead {
   name          String    @db.VarChar(100)
   registerId    Int       @map("register_id")
   phoneNumber   String    @db.VarChar(15) @map("phone_number")
-  interest      String?   @db.VarChar(100)
+  interestId    Int       @unique @map("interest_id")
   additionalInfo Json?   @map("additional_info") @db.JsonB
   addedBy       Int?      @map("added_by")
   status        String    @default("assigned") @db.VarChar(20)
@@ -121,7 +121,6 @@ model PerformerGroupMapping {
 
 model Setting {
   id          Int      @id @default(autoincrement())
-  leadInfo    Json?  @map("lead_info") @db.JsonB
   assignPeriod Int      @default(0) @map("assign_period")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
@@ -135,4 +134,11 @@ model Otp {
   expiresAt DateTime
   verified  Boolean  @default(false)
   createdAt DateTime @default(now())
+}
+
+model LeadInputSetting {
+  id          Int      @id @default(autoincrement())
+  sequence    Int
+  label       String   @unique
+  type        String
 }

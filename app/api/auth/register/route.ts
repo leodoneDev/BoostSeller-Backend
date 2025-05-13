@@ -24,10 +24,12 @@ export async function POST(req: Request) {
         phoneNumber,
         password: hashedPassword,
         role: role,
-        isVerified: false,
+        isVerified: true,
         isApproved: false,
       },
     });
+
+    
 
     return new Response(JSON.stringify({ error: false,  message: 'Register Successful!', user }), {
       status: 201,
