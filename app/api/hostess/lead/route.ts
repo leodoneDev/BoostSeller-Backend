@@ -13,12 +13,14 @@ export async function POST(req: Request) {
     });
 
     const hostessId = hostess?.id;
-    console.log(hostessId);
     const leads = await prisma.lead.findMany(
       { 
         where: { addedBy: hostessId },
         include: {
           interest: true,
+        },
+        orderBy: {
+          createdAt:'desc',
         },
       });
 
