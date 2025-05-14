@@ -1,7 +1,7 @@
 
 import nodemailer from 'nodemailer';
 import { PrismaClient } from '@prisma/client';
-
+import type SMTPTransport from 'nodemailer/lib/smtp-transport';
 
 const prisma = new PrismaClient();
 
@@ -15,21 +15,26 @@ export async function POST(req: Request) {
         await prisma.otp.create({
             data: { email: address, code: otp, expiresAt: expires,},
           });
-    
+
         const transporter = nodemailer.createTransport({
-          service: 'gmail',
+          host: process.env.SMTP_HOST,
+          port: process.env.SMTP_PORT,
+          secure: true, // true for 465, false for 587
           auth: {
-            user: process.env.EMAIL_USER, 
-            pass: process.env.EMAIL_PASS, 
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASS,
           },
-        });
-    
-        await transporter.sendMail({
+        } as SMTPTransport.Options);
+
+        const mailOptions = {
           from: process.env.EMAIL_USER,
           to: address,
           subject: 'Your OTP Code',
-          text: `Your OTP code is: ${otp}`,
-        });
+          html: `<p>Your OTP code is <b>${otp}</b>. It will expire in 5 minutes.</p>`,
+        };
+
+        await transporter.sendMail(mailOptions);
+
     
         // Optional: Save OTP to database with expiry or cache it
     
