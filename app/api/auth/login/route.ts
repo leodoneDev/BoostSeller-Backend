@@ -16,8 +16,9 @@ export async function POST(req: Request) {
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return new Response(JSON.stringify({ error: true, message: "Password is Invalid. \n Please enter correct password." }), {});
+      return new Response(JSON.stringify({ error: true, message: "Password is Invalid. Please enter correct password." }), {});
     }
+
 
     const token = jwt.sign(
       { id: user.id, email: user.email },
@@ -42,6 +43,6 @@ export async function POST(req: Request) {
     });
   } catch (error) {
     console.error("Login error:", error);
-    return new Response(JSON.stringify({error: true, message: "Failed to login \n Please try again." }), {});
+    return new Response(JSON.stringify({error: true, message: "Failed to login. Please try again." }), {});
   }
 }

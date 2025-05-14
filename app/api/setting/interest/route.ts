@@ -21,7 +21,7 @@ export async function GET() {
    
   } catch (error) {
     console.error("fetching error:", error);
-    return new Response(JSON.stringify({error: true, message: "Failed to fetch interests. \n Please try again." }), {
+    return new Response(JSON.stringify({error: true, message: "Failed to fetch interests. Please try again." }), {
       
     });
   }

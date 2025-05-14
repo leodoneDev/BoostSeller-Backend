@@ -28,13 +28,35 @@ export async function POST(req: Request) {
         isApproved: false,
       },
     });
-
     
+    if (role === 'hostess') {
+      const existingHostess = await prisma.hostess.findUnique({ where: { userId: user.id } });
+        if (existingHostess) {
+          return new Response(JSON.stringify({ error: true, message: 'You already login as hostess role.', exist: true, }), {
+        });
+      }
+      const hostess =  await prisma.hostess.create({ 
+				data: { 
+					userId: user.id 
+				} 
+			});
+    } else if (role === 'performer') {
+      const existingPerformer = await prisma.performer.findUnique({ where: { userId: user.id } });
+        if (existingPerformer) {
+          return new Response(JSON.stringify({ error: true, message: 'You already login as performer role.', exist: true, }), {
+        });
+      }
+      const performer = await prisma.performer.create({ 
+				data: { 
+					userId: user.id 
+				} 
+			});
+    }
 
     return new Response(JSON.stringify({ error: false,  message: 'Register Successful!', user }), {
       status: 201,
     });
   } catch (err) {
-    return new Response(JSON.stringify({ error: true, message: 'Failed to register. \n Please try again.' }));
+    return new Response(JSON.stringify({ error: true, message: 'Failed to register. Please try again.' }));
   }
 }

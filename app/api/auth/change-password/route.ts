@@ -25,7 +25,7 @@ export async function POST(req: Request) {
         status: 201,
       });
     } catch (err) {
-      return new Response(JSON.stringify({ error: true, message: "Failed to changed password. \n Please try again. " }));
+      return new Response(JSON.stringify({ error: true, message: "Failed to changed password. Please try again. " }));
       
     }
   } else {

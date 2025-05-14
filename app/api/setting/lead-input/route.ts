@@ -25,7 +25,7 @@ export async function POST(req: Request) {
       status: 201,
     });
   } catch (err) {
-    return new Response(JSON.stringify({ error: true, message: 'Failed to Create field Setting. \n Please try again.' }));
+    return new Response(JSON.stringify({ error: true, message: 'Failed to Create field Setting. Please try again.' }));
   }
 }
 
@@ -51,7 +51,7 @@ export async function GET() {
    
   } catch (error) {
     console.error("fetching error:", error);
-    return new Response(JSON.stringify({error: true, message: "Failed to fetch data. \n Please try again." }), {
+    return new Response(JSON.stringify({error: true, message: "Failed to fetch data. Please try again." }), {
       
     });
   }
