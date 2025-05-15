@@ -37,6 +37,7 @@ export async function POST(req: Request) {
         phone_number: user.phoneNumber,
         is_verified: user.isVerified,
         is_approved: user.isApproved,
+        avatar_path: user.avatarPath,
       }
     }), {
       status: 200,

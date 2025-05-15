@@ -19,7 +19,7 @@ export async function POST(req: Request) {
         const transporter = nodemailer.createTransport({
           host: process.env.SMTP_HOST,
           port: process.env.SMTP_PORT,
-          secure: true, // true for 465, false for 587
+          secure: true, 
           auth: {
             user: process.env.EMAIL_USER,
             pass: process.env.EMAIL_PASS,
@@ -34,9 +34,6 @@ export async function POST(req: Request) {
         };
 
         await transporter.sendMail(mailOptions);
-
-    
-        // Optional: Save OTP to database with expiry or cache it
     
         return new Response(JSON.stringify({error: false,  message: 'OTP sent successfully! Please check your email.' }), {
           status: 200,
