@@ -23,7 +23,6 @@ export async function POST(req: Request) {
           createdAt:'desc',
         },
       });
-      console.log(leads);
     return new Response(JSON.stringify({
       error: false,
       leads,

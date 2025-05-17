@@ -18,12 +18,16 @@ export async function POST(req: Request) {
       });
     }
 
-    // const existHostess = await prisma.hostess.findUnique({
-    //   where: {
-    //     'id': parsedHostessId,
-    //   },
-    // });
-
+    const existHostess = await prisma.hostess.update({
+      where: {
+        'id': parsedHostessId,
+      },
+      data: {
+        totalCount: {
+          increment: 1,
+        },
+      }
+    });
 
     function generateNumericUUID(phoneNumber: string, hostessId: number, interestId: number): string {
         const raw = `${phoneNumber}${hostessId}${interestId}`;

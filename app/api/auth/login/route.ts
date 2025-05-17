@@ -19,6 +19,28 @@ export async function POST(req: Request) {
       return new Response(JSON.stringify({ error: true, message: "Password is Invalid. Please enter correct password." }), {});
     }
 
+    let hostess  = {};
+    let performer = {};
+
+    if (user.role === 'hostess') {
+      const existHostess = await prisma.hostess.findUnique({
+        where: {
+          userId: user.id,
+        },
+      });
+      if (existHostess) {
+        hostess = existHostess;
+      }
+    } else if (user.role === 'performer') {
+      const existPerformer = await prisma.performer.findUnique({
+        where: {
+          userId: user.id,
+        },
+      });
+      if (existPerformer) {
+        performer = existPerformer;
+      }
+    }
 
     const token = jwt.sign(
       { id: user.id, email: user.email },
@@ -38,6 +60,8 @@ export async function POST(req: Request) {
         is_verified: user.isVerified,
         is_approved: user.isApproved,
         avatar_path: user.avatarPath,
+        hostess: hostess,
+        performer: performer,
       }
     }), {
       status: 200,
