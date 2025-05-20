@@ -4,7 +4,7 @@ const prisma = new PrismaClient();
 
 export async function POST(req: Request) {
   try {
-    const { sequence, label, type } = await req.json();
+    const { sequence, label, type, items } = await req.json();
 
     // Check for existing user
     const existingFieldSetting = await prisma.leadInputSetting.findUnique({ where: { label } });
@@ -18,6 +18,7 @@ export async function POST(req: Request) {
         sequence,
         label,
         type,
+        items,
       },
     });
 

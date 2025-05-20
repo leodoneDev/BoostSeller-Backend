@@ -145,4 +145,5 @@ model LeadInputSetting {
   sequence    Int
   label       String   @unique
   type        String
+  items       String[]
 }

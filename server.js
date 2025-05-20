@@ -34,26 +34,28 @@ app.prepare().then(() => {
     });
 
     socket.on('lead_added', async (data) => {
-      const performerSocket = clients.get('37');
+      const assignedPerfomer = await prisma.performer.findFirst({
+        orderBy: {
+          score: 'desc',
+        },
+        where: {
+          available: true,
+        },
+      });
+      const performerId = assignedPerfomer.id.toString();
+      console.log(assignedPerfomer);
+      const performerSocket = clients.get(performerId);
       console.log(data);
       
       if (performerSocket) {
         
         performerSocket.emit('lead_notification', {
           lead: data.lead,
-          message: 'New lead assigned to you',
+          message: 'A new lead has been assigned to you.',
         });
-        console.log('success');
+        
       } else {
-        const assignedPerfomer = await prisma.performer.findFirst({
-          orderBy: {
-            score: 'desc',
-          },
-          where: {
-            available: true,
-          },
-        });
-        console.log(assignedPerfomer);
+        
         const user = await prisma.user.findUnique({
           where: {
             id: assignedPerfomer.userId,

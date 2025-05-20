@@ -42,8 +42,8 @@ export async function POST(req: Request) {
 
     const registerId = generateNumericUUID(phoneNumber, parsedHostessId, parsedInterestId);
 
-    // Create new user
-    const user = await prisma.lead.create({
+    // Create new lead
+    const lead = await prisma.lead.create({
       data: {
         name: name,
         phoneNumber: phoneNumber,
@@ -58,7 +58,7 @@ export async function POST(req: Request) {
     
     
 
-    return new Response(JSON.stringify({ error: false,  message: 'Add Lead Successful!', user }), {
+    return new Response(JSON.stringify({ error: false,  message: 'Add Lead Successful!', lead }), {
       status: 201,
     });
   } catch (err) {
