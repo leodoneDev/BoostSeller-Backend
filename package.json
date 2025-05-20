@@ -16,6 +16,7 @@
     "bcrypt": "^5.1.1",
     "firebase-admin": "^13.4.0",
     "formidable": "^3.5.4",
+    "git-filter-repo": "^0.0.30",
     "jsonwebtoken": "^9.0.2",
     "next": "15.3.1",
     "nodemailer": "^7.0.2",
