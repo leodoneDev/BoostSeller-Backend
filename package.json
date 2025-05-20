@@ -3,16 +3,18 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "next build",
-    "start": "next start",
+    "dev": "cross-env NODE_ENV=development node server.js",
+    "build": "next build && prisma generate",
+    "start": "cross-env NODE_ENV=production node server.js",
     "lint": "next lint"
   },
   "dependencies": {
+    "@grpc/grpc-js": "^1.13.3",
     "@netlify/next": "^1.4.9",
     "@netlify/plugin-nextjs": "^5.11.1",
     "@prisma/client": "^6.7.0",
     "bcrypt": "^5.1.1",
+    "firebase-admin": "^13.4.0",
     "formidable": "^3.5.4",
     "jsonwebtoken": "^9.0.2",
     "next": "15.3.1",
@@ -30,6 +32,8 @@
     "@types/nodemailer": "^6.4.17",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "typescript": "^5"
+    "cross-env": "^7.0.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
   }
 }

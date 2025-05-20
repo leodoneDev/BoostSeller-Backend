@@ -26,6 +26,7 @@ model User {
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime  @default(now()) @updatedAt @map("updated_at")
   avatarPath  String?   @db.VarChar(100) @map("avatar_path")
+  fcmToken    String?    @db.VarChar(255)
 }
 
 model Hostess {

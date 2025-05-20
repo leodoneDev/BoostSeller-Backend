@@ -7,12 +7,19 @@ const JWT_SECRET = process.env.JWT_SECRET || 'BoostSellerSecret';
 
 export async function POST(req: Request) {
   try {
-    const { email, password } = await req.json()
+    const { email, password, fcmToken } = await req.json()
 
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
       return new Response(JSON.stringify({error: true, message: "User not found" }), {});
     }
+
+    const updatedUser = await prisma.user.update(
+      { 
+        where: { email },
+        data: {fcmToken}, 
+    });
+
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
