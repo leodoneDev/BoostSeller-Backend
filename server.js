@@ -43,6 +43,7 @@ app.prepare().then(() => {
         },
       });
       const performerId = assignedPerfomer.id.toString();
+      console.log(performerId);
       console.log(assignedPerfomer);
       const performerSocket = clients.get(performerId);
       console.log(data);
