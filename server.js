@@ -46,7 +46,8 @@ app.prepare().then(() => {
       console.log(assignedPerfomer);
       const performerSocket = clients.get(performerId);
       console.log(data);
-      
+      console.log("Server time (UTC):", new Date().toISOString());
+
       if (performerSocket) {
         
         performerSocket.emit('lead_notification', {
