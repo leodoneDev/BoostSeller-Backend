@@ -18,13 +18,6 @@ if (!admin.apps.length) {
   });
 }
 
-const serviceAccount = require("./config/serviceAccount.json");
-
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
-});
-
-
 const sendPushNotification = async (fcmToken, data) => {
   await admin.messaging().send({
     token: fcmToken,
