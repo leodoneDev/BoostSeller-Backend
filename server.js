@@ -42,17 +42,25 @@ app.prepare().then(() => {
           available: true,
         },
       });
-      
+      console.log(data);
       const performerId = assignedPerfomer.userId.toString();
       console.log(assignedPerfomer);
       const performerSocket = clients.get(performerId);
-      console.log(data);
-      console.log("Server time (UTC):", new Date().toISOString());
+      
+      const lead = await prisma.lead.update({
+        where: {
+          id: data.id,
+        },
+        data: {
+          assignedTo: assignedPerfomer.id,
+        },
+      });
+
 
       if (performerSocket) {
         
         performerSocket.emit('lead_notification', {
-          lead: data.lead,
+          lead: data,
           message: 'A new lead has been assigned to you.',
         });
         

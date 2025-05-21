@@ -56,9 +56,25 @@ export async function POST(req: Request) {
       },
     });
     
-    
+    const interest = await prisma.interest.findUnique({
+      where: {
+        id: parsedInterestId,
+      },
+    });
 
-    return new Response(JSON.stringify({ error: false,  message: 'Add Lead Successful!', lead }), {
+    const interestName = interest?.name;
+
+    const passLead = {
+      id: lead.id,
+      name: lead.name,
+      interest: interestName,
+      phoneNumber: lead.phoneNumber,
+      registerId: lead.registerId,
+      status: lead.status,
+      date: lead.createdAt,
+    };
+
+    return new Response(JSON.stringify({ error: false,  message: 'Add Lead Successful!', passLead }), {
       status: 201,
     });
   } catch (err) {
