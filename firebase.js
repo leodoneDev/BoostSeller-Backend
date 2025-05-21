@@ -17,7 +17,10 @@ const admin = require("firebase-admin");
 //   universe_domain: process.env.FIREBASE_UNIVERSE_DOMAIN,
 // };
 
-const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+// const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+
+const serviceAccountJson = Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT_BASE64, 'base64').toString('utf8');
+const serviceAccount = JSON.parse(serviceAccountJson);
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
