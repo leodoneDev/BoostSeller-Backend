@@ -150,7 +150,7 @@ model LeadInputSetting {
 
 model Notification {
   id              Int       @id @default(autoincrement())
-  receiveId       Int       @unique @map("receive_id")
+  receiveId       Int       @map("receive_id")
   title           String
   message         String
   createdAt       DateTime @default(now())  @map("created_at")
