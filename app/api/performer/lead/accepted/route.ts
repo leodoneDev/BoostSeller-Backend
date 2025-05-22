@@ -8,10 +8,16 @@ export async function POST(req: Request) {
     const parsedperformerId = parseInt(performerId);
     const leads = await prisma.lead.findMany({
       where: {
-        assignedTo: parsedperformerId,
+        acceptedBy: parsedperformerId,
         status: {
             not: 'assigned',
         },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+      include: {
+        interest: true,
       },
     });
 

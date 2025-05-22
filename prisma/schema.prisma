@@ -147,3 +147,12 @@ model LeadInputSetting {
   type        String
   items       String[]
 }
+
+model Notification {
+  id              Int       @id @default(autoincrement())
+  receiveId       Int       @unique @map("receive_id")
+  title           String
+  message         String
+  createdAt       DateTime @default(now())  @map("created_at")
+  isRead          Boolean  @default(false)  @map("is_read")
+}

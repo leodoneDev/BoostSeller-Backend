@@ -42,7 +42,7 @@ app.prepare().then(() => {
           available: true,
         },
       });
-      console.log(data);
+      console.log(data.interest.name);
       const performerId = assignedPerfomer.userId.toString();
       console.log(assignedPerfomer);
       const performerSocket = clients.get(performerId);
@@ -56,6 +56,16 @@ app.prepare().then(() => {
         },
       });
 
+      console.log(performerId);
+
+      const notification = await prisma.notification.create({
+        data: {
+          receiveId: parseInt(performerId),
+          title: 'New lead is assigned',
+          message: data.name + ' is assigned to you.',
+          isRead: false,
+        },
+      });
 
       if (performerSocket) {
         

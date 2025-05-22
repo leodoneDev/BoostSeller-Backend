@@ -11,6 +11,12 @@ export async function POST(req: Request) {
         assignedTo: parsedperformerId,
         status: 'assigned',
       },
+      orderBy: {
+        createdAt: 'desc',
+      },
+      include: {
+        interest: true,
+      },
     });
 
     

@@ -67,14 +67,16 @@ export async function POST(req: Request) {
     const passLead = {
       id: lead.id,
       name: lead.name,
-      interest: interestName,
+      interest: {
+        name: interestName,
+      },
       phoneNumber: lead.phoneNumber,
       registerId: lead.registerId,
       status: lead.status,
-      date: lead.createdAt,
+      createdAt: lead.createdAt,
     };
 
-    return new Response(JSON.stringify({ error: false,  message: 'Add Lead Successful!', passLead }), {
+    return new Response(JSON.stringify({ error: false,  message: 'Add Lead Successful!', lead: passLead  }), {
       status: 201,
     });
   } catch (err) {
