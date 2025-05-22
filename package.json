@@ -16,6 +16,7 @@
     "@sendgrid/mail": "^8.1.5",
     "bcrypt": "^5.1.1",
     "dotenv": "^16.5.0",
+    "express": "^5.1.0",
     "firebase-admin": "^13.4.0",
     "formidable": "^3.5.4",
     "git-filter-repo": "^0.0.30",
