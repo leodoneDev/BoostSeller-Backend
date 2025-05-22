@@ -2,7 +2,8 @@ const { createServer } = require('http');
 const next = require('next');
 const socketIo = require('socket.io');
 const path = require('path');
-
+const fs = require('fs');
+const url = require('url');
 const dev = process.env.NODE_ENV !== 'production';
 const app = next({ dev });
 const handle = app.getRequestHandler();
@@ -13,9 +14,35 @@ const prisma = new PrismaClient();
 
 app.prepare().then(() => {
 
-  const server = createServer((req, res) => {
+  // const server = createServer((req, res) => {
+  //   handle(req, res);
+  // });
+
+const server = createServer((req, res) => {
+  const parsedUrl = url.parse(req.url, true);
+  const pathname = parsedUrl.pathname;
+
+  // Serve files from /uploads
+  if (pathname.startsWith('/uploads')) {
+    const filePath = path.join(__dirname, pathname);
+      
+    fs.stat(filePath, (err, stat) => {
+      if (err || !stat.isFile()) {
+        res.statusCode = 404;
+        res.end('Not found');
+        return;
+      }
+
+      const readStream = fs.createReadStream(filePath);
+      readStream.pipe(res);
+    });
+      return;
+    }
+
+    // Default next.js handler
     handle(req, res);
   });
+
   
   const io = socketIo(server, {
     cors: {

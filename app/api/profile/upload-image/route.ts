@@ -21,7 +21,7 @@ export async function POST(req: Request) {
     const filename = `${Date.now()}-${file.name}`;
     
     // const uploadDir = path.join(process.cwd(), '/public/uploads/images/profiles');
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'images', 'profiles');
+    const uploadDir = path.join(process.cwd(), 'uploads', 'images', 'profiles');
 
 
     // Ensure upload folder exists
