@@ -2,6 +2,7 @@
 import nodemailer from 'nodemailer';
 import { PrismaClient } from '@prisma/client';
 import type SMTPTransport from 'nodemailer/lib/smtp-transport';
+import sgMail from '@sendgrid/mail';
 
 const prisma = new PrismaClient();
 
@@ -12,13 +13,21 @@ export async function POST(req: Request) {
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
         const expires = new Date(Date.now() + 5 * 60 * 1000);
         
-        await prisma.otp.create({
-            data: { email: address, code: otp, expiresAt: expires,},
-          });
+        // await prisma.otp.create({
+        //     data: { email: address, code: otp, expiresAt: expires,},
+        //   });
+        // sgMail.setApiKey(process.env.SENDGRID_API_KEY!);
+        // await sgMail.send({
+        //   to: address,
+        //   from: process.env.SENDGRID_FROM!,
+        //   subject: 'Your OTP Code',
+        //   text: `Your code is ${otp}`,
+        //   html: `<p>Your code is <strong>${otp}</strong></p>`,
+        // });
 
         // const transporter = nodemailer.createTransport({
         //   host: process.env.SMTP_HOST,
-        //   port: 465,
+        //   port: process.env.SMTP_PORT,
         //   secure: true, 
         //   auth: {
         //     user: process.env.SMTP_USER,

@@ -13,6 +13,7 @@
     "@netlify/next": "^1.4.9",
     "@netlify/plugin-nextjs": "^5.11.1",
     "@prisma/client": "^6.7.0",
+    "@sendgrid/mail": "^8.1.5",
     "bcrypt": "^5.1.1",
     "dotenv": "^16.5.0",
     "firebase-admin": "^13.4.0",
