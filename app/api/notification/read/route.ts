@@ -5,10 +5,10 @@ const prisma = new PrismaClient();
 export async function POST(req: Request) {
   try {
     const { id } = await req.json();
-    const paresedReceiveId = parseInt(id);
+    const parsedId = parseInt(id);
     const notification = await prisma.notification.update({
         where: {
-            id: id,
+            id: parsedId,
         },
         data : {
             isRead: true,
