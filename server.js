@@ -60,7 +60,7 @@ app.prepare().then(() => {
 
       const notification = await prisma.notification.create({
         data: {
-          receiveId: parseInt(userId),
+          receiveId: parseInt(performerId),
           title: 'New lead is assigned',
           message: data.name + ' is assigned to you.',
           isRead: false,
