@@ -1,4 +1,4 @@
-const express = require('express');
+
 const { createServer } = require('http');
 const next = require('next');
 const socketIo = require('socket.io');
@@ -24,9 +24,6 @@ app.prepare().then(() => {
       methods: ['GET', 'POST']
     }
   });
-
-  server.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
-
 
   const clients = new Map(); // Map userId => socket
 
