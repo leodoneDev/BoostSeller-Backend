@@ -20,7 +20,9 @@ export async function POST(req: Request) {
     const buffer = Buffer.from(await file.arrayBuffer());
     const filename = `${Date.now()}-${file.name}`;
     
-    const uploadDir = path.join(process.cwd(), '/public/uploads/images/profiles');
+    // const uploadDir = path.join(process.cwd(), '/public/uploads/images/profiles');
+    const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'images', 'profiles');
+
 
     // Ensure upload folder exists
     if (!fs.existsSync(uploadDir)) {
