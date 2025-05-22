@@ -19,7 +19,9 @@ app.prepare().then(() => {
   expressApp.all('*', (req, res) => {
     return handle(req, res);
   });
-  const server = createServer(expressApp);
+  const server = createServer((req, res) => {
+    expressApp(req, res, () => handle(req, res));
+  });
 
   const io = socketIo(server, {
     cors: {
