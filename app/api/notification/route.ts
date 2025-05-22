@@ -9,6 +9,9 @@ export async function POST(req: Request) {
     const notifications = await prisma.notification.findMany({
         where: {
             receiveId: paresedReceiveId,
+        },
+        orderBy: {
+            createdAt: 'desc',
         }
     });
 
