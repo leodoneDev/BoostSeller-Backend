@@ -4,11 +4,11 @@ const prisma = new PrismaClient();
 
 export async function POST(req: Request) {
   try {
-    const { receiveId } = await req.json();
-    const paresedReceiveId = parseInt(receiveId);
-    const unReadCount = await prisma.notification.update({
+    const { id } = await req.json();
+    const paresedReceiveId = parseInt(id);
+    const notification = await prisma.notification.update({
         where: {
-            receiveId: paresedReceiveId,
+            id: id,
         },
         data : {
             isRead: true,
