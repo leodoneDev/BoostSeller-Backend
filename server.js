@@ -1,5 +1,4 @@
-
-const { createServer } = require('http');
+const express = require('express');
 const next = require('next');
 const socketIo = require('socket.io');
 const path = require('path');
@@ -14,9 +13,13 @@ const prisma = new PrismaClient();
 
 app.prepare().then(() => {
 
-  const server = createServer((req, res) => {
-    handle(req, res);
+  const expressApp = express();
+  const uploadsDir = path.join(__dirname, 'uploads');
+  expressApp.use('/uploads', express.static(uploadsDir));
+  expressApp.all('*', (req, res) => {
+    return handle(req, res);
   });
+  const server = createServer(expressApp);
 
   const io = socketIo(server, {
     cors: {
