@@ -2,6 +2,7 @@ const express = require('express');
 const { createServer } = require('http');
 const next = require('next');
 const socketIo = require('socket.io');
+const path = require('path');
 
 const dev = process.env.NODE_ENV !== 'production';
 const app = next({ dev });
