@@ -21,9 +21,6 @@ const sendPushNotification = async (fcmToken, message) => {
       title: '📢 New Lead Assigned',
       body: message,
     },
-    data: {
-      payload: JSON.stringify(data),
-    },
   });
 };
 
