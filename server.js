@@ -99,7 +99,7 @@ const server = createServer((req, res) => {
         data: {
           receiveId: parseInt(performerId),
           title: 'New lead is assigned',
-          message: data.name + ' is assigned to you.',
+          message: 'A new lead - ' + data.name + ' has been assigned to you.',
           isRead: false,
         },
       });
