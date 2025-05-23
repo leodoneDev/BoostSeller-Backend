@@ -57,8 +57,13 @@ const server = createServer((req, res) => {
     console.log('Client connected:', socket.id);
 
     socket.on('register', (userId) => {
-      clients.set(userId, socket);
-      console.log(`Registered user ${userId}`);
+      if (clients.has(userId)) {
+        console.log(`User ${userId} was already connected. Replacing old socket.`);
+      } else {
+        clients.set(userId, socket);
+        console.log(`Registered user ${userId} with socket ${socket.id}`);
+      }
+      
     });
 
     socket.on('lead_added', async (data) => {

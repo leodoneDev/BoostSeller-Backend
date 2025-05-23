@@ -5,6 +5,7 @@ const prisma = new PrismaClient();
 export async function POST(req: Request) {
   try {
     const { performerId } = await req.json();
+    console.log(performerId);
     const parsedperformerId = parseInt(performerId);
     const leads = await prisma.lead.findMany({
       where: {
