@@ -108,7 +108,7 @@ const server = createServer((req, res) => {
         
         performerSocket.emit('lead_notification', {
           lead: data,
-          message: 'A new lead - ' + data.name + 'has been assigned to you.',
+          message: 'A new lead - ' + data.name + ' has been assigned to you.',
           notification: notification,
         });
         
@@ -118,7 +118,7 @@ const server = createServer((req, res) => {
           where: {
             id: assignedPerfomer.userId,
           },
-          
+
         });
 
         const deviceToken = user.fcmToken;
