@@ -13,7 +13,7 @@ export async function POST(req: Request) {
         status: 'assigned',
       },
       orderBy: {
-        createdAt: 'desc',
+        assignedAt: 'desc',
       },
       include: {
         interest: true,

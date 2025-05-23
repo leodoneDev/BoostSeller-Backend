@@ -14,7 +14,7 @@ export async function POST(req: Request) {
         },
       },
       orderBy: {
-        createdAt: 'desc',
+        updatedAt: 'desc',
       },
       include: {
         interest: true,

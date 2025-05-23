@@ -67,6 +67,8 @@ const server = createServer((req, res) => {
     });
 
     socket.on('lead_added', async (data) => {
+
+      // find top rank performer
       const assignedPerfomer = await prisma.performer.findFirst({
         orderBy: {
           score: 'desc',
@@ -75,9 +77,9 @@ const server = createServer((req, res) => {
           available: true,
         },
       });
-      console.log(data.interest.name);
       const performerId = assignedPerfomer.userId.toString();
-      console.log(assignedPerfomer);
+
+      // socket that correspond to assigned performer
       const performerSocket = clients.get(performerId);
       
       const lead = await prisma.lead.update({
@@ -86,6 +88,8 @@ const server = createServer((req, res) => {
         },
         data: {
           assignedTo: assignedPerfomer.id,
+          status: "assigned",
+          assignedAt: new Date(),
         },
       });
 
@@ -104,7 +108,8 @@ const server = createServer((req, res) => {
         
         performerSocket.emit('lead_notification', {
           lead: data,
-          message: 'A new lead has been assigned to you.',
+          message: 'A new lead - ' + data.name + 'has been assigned to you.',
+          notification: notification,
         });
         
       } else {
@@ -113,8 +118,9 @@ const server = createServer((req, res) => {
           where: {
             id: assignedPerfomer.userId,
           },
+          
         });
-        console.log(user);
+
         const deviceToken = user.fcmToken;
         console.log(deviceToken);
         sendPushNotification(deviceToken, assignedPerfomer);

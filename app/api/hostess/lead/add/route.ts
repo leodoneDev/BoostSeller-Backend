@@ -51,7 +51,6 @@ export async function POST(req: Request) {
         addedBy: parsedHostessId,
         additionalInfo: additionalInfo,
         registerId: registerId,
-        status: 'assigned',
         stageId: 0,
       },
     });

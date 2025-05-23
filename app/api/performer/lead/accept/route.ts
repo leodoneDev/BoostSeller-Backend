@@ -13,6 +13,7 @@ export async function POST(req: Request) {
      data: {
       acceptedBy: paresedPerformerId,
       status: 'presentation',
+      acceptedAt: new Date(),
      },
       
     });
