@@ -14,12 +14,12 @@ admin.initializeApp({
 });
 
 
-const sendPushNotification = async (fcmToken, data) => {
+const sendPushNotification = async (fcmToken, message) => {
   await admin.messaging().send({
     token: fcmToken,
     notification: {
       title: '📢 New Lead Assigned',
-      body: data.message,
+      body: message,
     },
     data: {
       payload: JSON.stringify(data),

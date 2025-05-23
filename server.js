@@ -120,10 +120,10 @@ const server = createServer((req, res) => {
           },
 
         });
-
+        const message = 'A new lead - ' + data.name + ' has been assigned to you.';
         const deviceToken = user.fcmToken;
         console.log(deviceToken);
-        sendPushNotification(deviceToken, assignedPerfomer);
+        sendPushNotification(deviceToken, message);
       }
     });
 
