@@ -77,6 +77,18 @@ const server = createServer((req, res) => {
           available: true,
         },
       });
+
+      if(assignedPerfomer == null) {
+        const lead = await prisma.lead.update({
+          where: {
+            id: data.id,
+          },
+          data: {
+            status: "pendding",
+          },
+        });
+      }
+
       const performerId = assignedPerfomer.userId.toString();
 
       // socket that correspond to assigned performer
