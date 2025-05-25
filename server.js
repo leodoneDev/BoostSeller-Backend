@@ -72,6 +72,7 @@ const server = createServer((req, res) => {
       const assignedPerfomer = await prisma.performer.findFirst({
         orderBy: {
           score: 'desc',
+          createdAt: 'asc',
         },
         where: {
           available: true,
@@ -152,8 +153,7 @@ const server = createServer((req, res) => {
   server.listen(PORT, '0.0.0.0', () => {
     console.log(`> Ready on http://0.0.0.0:${PORT}`);
   });
-
-
+  
 });
 
 
