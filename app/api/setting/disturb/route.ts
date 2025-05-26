@@ -11,7 +11,7 @@ export async function POST(req: Request) {
             id: paresedPerformerId,
         },
         data: {
-            available: flag,
+            available: !flag,
         },
     });
     
