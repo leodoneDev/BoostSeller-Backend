@@ -6,7 +6,7 @@ export async function POST(req: Request) {
   try {
     const { registerId, performerId } = await req.json();
     const paresedPerformerId = parseInt(performerId);
-    const leads = await prisma.lead.update({
+    const lead = await prisma.lead.update({
       where: {
         registerId: registerId,
       },
@@ -17,10 +17,22 @@ export async function POST(req: Request) {
       
     });
 
+    const hostessId = lead.addedBy ?? undefined;
+
+    await prisma.hostess.update({
+      where: {
+        id: hostessId,
+      },
+      data: {
+        completedCount: {
+          increment: 1,
+        },
+      },
+    });
     
     return new Response(JSON.stringify({
       error: false,
-      leads,
+      lead,
     }), {
       status: 200,
     });

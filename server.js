@@ -68,78 +68,205 @@ const server = createServer((req, res) => {
 
     socket.on('lead_added', async (data) => {
 
-      // find top rank performer
-      const assignedPerfomer = await prisma.performer.findFirst({
-        orderBy: {
-          score: 'desc',
-          createdAt: 'asc',
-        },
-        where: {
-          available: true,
-        },
-      });
+      // // find top rank performer
+      // const assignedPerfomer = await prisma.performer.findFirst({
+      //   orderBy: {
+      //     score: 'desc',
+      //     createdAt: 'asc',
+      //   },
+      //   where: {
+      //     available: true,
+      //   },
+      // });
 
-      if(assignedPerfomer == null) {
-        const lead = await prisma.lead.update({
-          where: {
-            id: data.id,
-          },
-          data: {
-            status: "pendding",
-          },
-        });
+      // if(assignedPerfomer == null) {
+      //   const lead = await prisma.lead.update({
+      //     where: {
+      //       id: data.id,
+      //     },
+      //     data: {
+      //       status: "pendding",
+      //     },
+      //   });
+      // }
+
+      // const performerId = assignedPerfomer.userId.toString();
+
+      // // socket that correspond to assigned performer
+      // const performerSocket = clients.get(performerId);
+      
+      // const lead = await prisma.lead.update({
+      //   where: {
+      //     id: data.id,
+      //   },
+      //   data: {
+      //     assignedTo: assignedPerfomer.id,
+      //     status: "assigned",
+      //     assignedAt: new Date(),
+      //   },
+      // });
+
+      // console.log(performerId);
+
+      // const notification = await prisma.notification.create({
+      //   data: {
+      //     receiveId: parseInt(performerId),
+      //     title: 'New lead is assigned',
+      //     message: 'A new lead - ' + data.name + ' has been assigned to you.',
+      //     isRead: false,
+      //   },
+      // });
+
+      // if (performerSocket) {
+        
+      //   performerSocket.emit('lead_notification', {
+      //     lead: data,
+      //     message: 'A new lead - ' + data.name + ' has been assigned to you.',
+      //     notification: notification,
+      //   });
+        
+      // } else {
+        
+      //   const user = await prisma.user.findUnique({
+      //     where: {
+      //       id: assignedPerfomer.userId,
+      //     },
+
+      //   });
+      //   const title = '📢 New Lead Assigned';
+      //   const message = 'A new lead - ' + data.name + ' has been assigned to you.';
+      //   const deviceToken = user.fcmToken;
+      //   console.log(deviceToken);
+      //   sendPushNotification(deviceToken, title, message);
+      // }
+
+      triedPerformers.clear(); // clear for each new lead
+      await assignLeadToPerformer(data.id);
+
+    });
+
+
+    const triedPerformers = new Set();
+
+    async function assignLeadToPerformer(leadId, performerToSkip = null) {
+      const lead = await prisma.lead.findUnique({ where: { id: leadId } });
+
+      if (lead.status !== 'assigned' && lead.status !== 'pending' && lead.status !== 'pending') {
+        console.log('Lead already processed:', lead.status);
+        return;
       }
 
-      const performerId = assignedPerfomer.userId.toString();
-
-      // socket that correspond to assigned performer
-      const performerSocket = clients.get(performerId);
-      
-      const lead = await prisma.lead.update({
+      const nextPerformer = await prisma.performer.findFirst({
         where: {
-          id: data.id,
+          available: true,
+          id: {
+            notIn: [...triedPerformers],
+            ...(performerToSkip ? { not: performerToSkip } : {})
+          }
         },
+        orderBy: [
+          { score: 'desc'},
+          { createdAt: 'asc'},
+        ],
+      });
+
+      if (!nextPerformer) {
+        console.log('No more performers to assign');
+        const penddingLead = await prisma.lead.update({
+          where: { id: leadId },
+          data: { status: 'pendding' },
+        });
+        return;
+      }
+
+      triedPerformers.add(nextPerformer.id);
+
+      const performerId = nextPerformer.userId.toString();
+      const performerSocket = clients.get(performerId);
+
+      await prisma.lead.update({
+        where: { id: leadId },
         data: {
-          assignedTo: assignedPerfomer.id,
-          status: "assigned",
+          assignedTo: nextPerformer.id,
+          status: 'assigned',
           assignedAt: new Date(),
         },
       });
 
-      console.log(performerId);
+      const leadData = await prisma.lead.findUnique({ 
+        where: { id: leadId },
+        include: {
+          interest: true,
+        }, 
+      
+      });
 
       const notification = await prisma.notification.create({
         data: {
-          receiveId: parseInt(performerId),
+          receiveId: nextPerformer.userId,
           title: 'New lead is assigned',
-          message: 'A new lead - ' + data.name + ' has been assigned to you.',
+          message: `A new lead - ${leadData.name} has been assigned to you.`,
           isRead: false,
         },
       });
 
       if (performerSocket) {
-        
         performerSocket.emit('lead_notification', {
-          lead: data,
-          message: 'A new lead - ' + data.name + ' has been assigned to you.',
-          notification: notification,
+          type: 'assigned',
+          lead: leadData,
+          message: `A new lead - ${leadData.name} has been assigned to you.`,
+          notification,
         });
-        
       } else {
-        
         const user = await prisma.user.findUnique({
-          where: {
-            id: assignedPerfomer.userId,
-          },
-
+          where: { id: nextPerformer.userId },
         });
-        const message = 'A new lead - ' + data.name + ' has been assigned to you.';
-        const deviceToken = user.fcmToken;
-        console.log(deviceToken);
-        sendPushNotification(deviceToken, message);
+        sendPushNotification(user.fcmToken, '📢 New Lead Assigned', `A new lead - ${leadData.name} has been assigned to you.`);
       }
-    });
 
+      const setting = await prisma.setting.findFirst();
+      const assignPeriod = setting.assignPeriod ?? 300000;
+
+      // Wait for 60s before checking if accepted
+      setTimeout(async () => {
+        const updatedLead = await prisma.lead.findUnique({ 
+          where: { id: leadId },
+          include: {
+            interest: true,
+          }, 
+        });
+        if (updatedLead.status === 'assigned' && updatedLead.assignedTo === nextPerformer.id) {
+          const escalationNotification = await prisma.notification.create({
+            data: {
+              receiveId: nextPerformer.userId, // or appropriate performer userId
+              title: 'Lead is escalated!',
+              message: `You did not accept the lead in time. The lead - ${updatedLead.name} will be escalated.`,
+              isRead: false,
+            },
+          });
+
+          const denyPerformerSocket = clients.get(nextPerformer.userId.toString());
+          if (denyPerformerSocket) {
+            performerSocket.emit('lead_escalation', {
+              type: 'escalated',
+              lead: updatedLead,
+              message: `You did not accept the lead in time. The lead - ${updatedLead.name} will be escalated.`,
+              escalationNotification,
+            });
+          }
+
+          else {
+            const user = await prisma.user.findUnique({
+              where: { id: nextPerformer.userId },
+            });
+            sendPushNotification(user.fcmToken, '📢 Lead is escalated!', `You did not accept the lead in time. The lead - ${updatedLead.name} will be escalated.`);
+          }
+          await assignLeadToPerformer(leadId, nextPerformer.id);
+        }
+      }, 60000);
+    }
+
+    
     socket.on('disconnect', () => {
       for (const [userId, s] of clients.entries()) {
         if (s.id === socket.id) clients.delete(userId);
