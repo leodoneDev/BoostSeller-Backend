@@ -17,6 +17,7 @@ export async function POST(req: Request) {
       
     });
 
+    // update hostess
     const hostessId = lead.addedBy ?? undefined;
 
     await prisma.hostess.update({
@@ -30,6 +31,19 @@ export async function POST(req: Request) {
       },
     });
     
+    // update performer (completed_count)
+    await prisma.performer.update({
+      where: {
+        id: paresedPerformerId,
+      },
+      data: {
+        completedCount: {
+          increment: 1,
+        },
+      }
+
+    });
+
     return new Response(JSON.stringify({
       error: false,
       lead,

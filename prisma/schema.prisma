@@ -47,6 +47,7 @@ model Performer {
   acceptedCount   Int       @default(0) @map("accepted_count")
   closedCount     Int       @default(0) @map("closed_count")
   completedCount  Int       @default(0) @map("completed_count")
+  skippedCount    Int       @default(0) @map("skipped_count")
   avgResponseTime Float     @default(0) @map("avg_response_time")
   score           Float     @default(0)
   groupRank       Int       @default(0) @map("group_rank")

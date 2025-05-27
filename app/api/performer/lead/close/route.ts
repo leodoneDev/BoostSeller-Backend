@@ -17,7 +17,19 @@ export async function POST(req: Request) {
       
     });
 
-    
+    // update performer (closed_count)
+    await prisma.performer.update({
+      where: {
+        id: paresedPerformerId,
+      },
+      data: {
+        closedCount: {
+          increment: 1,
+        },
+      }
+
+    });
+
     return new Response(JSON.stringify({
       error: false,
       leads,
