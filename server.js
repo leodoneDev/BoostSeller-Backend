@@ -202,7 +202,7 @@ const server = createServer((req, res) => {
 
           const denyPerformerSocket = clients.get(nextPerformer.userId.toString());
           if (denyPerformerSocket) {
-            performerSocket.emit('lead_escalation', {
+            denyPerformerSocket.emit('lead_escalation', {
               type: 'escalated',
               lead: updatedLead,
               message: `You did not accept the lead in time. The lead - ${updatedLead.name} will be escalated.`,
