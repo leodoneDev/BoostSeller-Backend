@@ -223,8 +223,6 @@ const server = createServer((req, res) => {
 
     socket.on('lead_skip', async (data) => {
       
-      const triedPerformers = new Set();
-      triedPerformers.add(parseInt(data.performerId));
       const lead = await prisma.lead.findUnique({
         where: {
           registerId: data.leadId,
@@ -259,6 +257,8 @@ const server = createServer((req, res) => {
         message: `You did not accept the lead in time. The lead - ${lead.name} will be escalated.`,
         escalationNotification,
       });
+      const triedPerformers = new Set();
+      triedPerformers.add(parseInt(data.performerId));
       await assignLeadToPerformer(leadId, parseInt(data.performerId), triedPerformers); // Skip current performer
     });
 
