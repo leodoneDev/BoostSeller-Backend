@@ -19,7 +19,7 @@ export async function POST(req: Request) {
     for (const entry of formData.entries()) {
       const [key, value] = entry;
 
-      if (value instanceof File) {
+      if (typeof value === 'object' && typeof value.arrayBuffer === 'function') {
         const buffer = Buffer.from(await value.arrayBuffer());
         const filename = `${Date.now()}-${value.name}`;
         const filepath = path.join(uploadDir, filename);
