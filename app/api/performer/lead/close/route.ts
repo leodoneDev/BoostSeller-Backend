@@ -6,7 +6,7 @@ export async function POST(req: Request) {
   try {
     const { registerId, performerId } = await req.json();
     const paresedPerformerId = parseInt(performerId);
-    const leads = await prisma.lead.update({
+    const lead = await prisma.lead.update({
       where: {
         registerId: registerId,
       },
@@ -32,7 +32,7 @@ export async function POST(req: Request) {
 
     return new Response(JSON.stringify({
       error: false,
-      leads,
+      stageId: lead.stageId,
     }), {
       status: 200,
     });

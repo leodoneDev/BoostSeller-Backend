@@ -10,7 +10,7 @@ export async function POST(req: Request) {
       where: {
         acceptedBy: parsedperformerId,
         status: {
-            not: 'assigned',
+            notIn: ['assigned', 'pendding' ],
         },
       },
       orderBy: {
@@ -21,7 +21,6 @@ export async function POST(req: Request) {
       },
     });
 
-    
     return new Response(JSON.stringify({
       error: false,
       leads,

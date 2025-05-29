@@ -6,14 +6,24 @@ export async function POST(req: Request) {
   try {
     const { registerId, performerId } = await req.json();
     const paresedPerformerId = parseInt(performerId);
+    const firstStage = await prisma.stage.findFirst({
+      where: {
+        sequence: 1,
+      },
+    });
+    if (firstStage == null) {
+      return new Response(JSON.stringify({error: true, exist: false,  message: "Sales stage is not defined. Please wait until configured sales stage setting." }), {});
+    }
+    const firstStageName = firstStage.name;
     const lead = await prisma.lead.update({
       where: {
         registerId: registerId,
       },
      data: {
       acceptedBy: paresedPerformerId,
-      status: 'presentation',
+      status: firstStageName,
       acceptedAt: new Date(),
+      stageId: firstStage.id,
      },
       
     });
@@ -57,10 +67,20 @@ export async function POST(req: Request) {
         }
       },
     });
-    
+
+    const updatedLead = await prisma.lead.findUnique({
+      where: {
+        registerId: registerId,
+      },
+      include: {
+        interest: true,
+      },
+    });
     return new Response(JSON.stringify({
       error: false,
-      lead,
+      lead: updatedLead,
+      stageName: firstStageName,
+      stageId: firstStage.id,
     }), {
       status: 200,
     });
