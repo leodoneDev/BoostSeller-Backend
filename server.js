@@ -68,11 +68,13 @@ const server = createServer((req, res) => {
 
       const triedPerformers = new Set();
       triedPerformers.clear(); // clear for each new lead
-      await assignLeadToPerformer(data.id, null, triedPerformers);
+      // await assignLeadToPerformer(data.id, null, triedPerformers);
+      await assignLeadToPerformer(data.id, triedPerformers);
 
     });
 
-    async function assignLeadToPerformer(leadId, performerToSkip = null, triedPerformers = new Set()) {
+    // async function assignLeadToPerformer(leadId, performerToSkip = null, triedPerformers = new Set()) {
+    async function assignLeadToPerformer(leadId, triedPerformers = new Set()) {
 
       const lead = await prisma.lead.findUnique({ where: { id: leadId } });
 
@@ -87,10 +89,13 @@ const server = createServer((req, res) => {
       const performers = await prisma.performer.findMany({
         where: {
           available: true,
+          // id: {
+          //   notIn: [...triedPerformers],
+          //   ...(performerToSkip ? { not: performerToSkip } : {}),
+          // },
           id: {
-            notIn: [...triedPerformers],
-            ...(performerToSkip ? { not: performerToSkip } : {}),
-          },
+            notIn: Array.from(triedPerformers),
+          }
         },
       });
 
@@ -127,6 +132,7 @@ const server = createServer((req, res) => {
       }
 
       triedPerformers.add(nextPerformer.id);
+      if (lead.assignedTo) triedPerformers.add(lead.assignedTo);
 
       const performerId = nextPerformer.userId.toString();
       const performerSocket = clients.get(performerId);
@@ -216,25 +222,30 @@ const server = createServer((req, res) => {
             });
             sendPushNotification(user.fcmToken, '📢 Lead is escalated!', `You did not accept the lead in time. The lead - ${updatedLead.name} will be escalated.`);
           }
-          await assignLeadToPerformer(leadId, nextPerformer.id, triedPerformers);
+          // await assignLeadToPerformer(leadId, nextPerformer.id, triedPerformers);
+          await assignLeadToPerformer(leadId, triedPerformers);
         } 
       }, assignPeriod);
     }
 
     socket.on('lead_skip', async (data) => {
       
+      const performerId = parseInt(data.performerId);
+      const userId = parseInt(data.userId);
+
       const lead = await prisma.lead.findUnique({
         where: {
           registerId: data.leadId,
-          status: 'assigned',
         }
       });
+      
+      if (!lead || lead.status !== 'assigned') return;
 
       const leadId = lead.id;
 
       await prisma.performer.update({
         where: {
-          id: parseInt(data.performerId),
+          id: performerId,
         },
         data: {
           skippedCount: {
@@ -242,10 +253,10 @@ const server = createServer((req, res) => {
           }
         }
       });
-      const skipSocket = clients.get(data.userId.toString());
+      const skipSocket = clients.get(userId.toString());
       const escalationNotification = await prisma.notification.create({
         data: {
-          receiveId: parseInt(data.userId), // or appropriate performer userId
+          receiveId: userId, // or appropriate performer userId
           title: 'Lead is escalated!',
           message: `You skiped lead. The lead - ${lead.name} will be escalated.`,
           isRead: false,
@@ -258,9 +269,10 @@ const server = createServer((req, res) => {
         escalationNotification,
       });
       const triedPerformers = new Set();
-      triedPerformers.add(parseInt(data.performerId));
-       if (lead.assignedTo) triedPerformers.add(lead.assignedTo);
-      await assignLeadToPerformer(leadId, parseInt(data.performerId), triedPerformers); // Skip current performer
+      if (lead.assignedTo) triedPerformers.add(lead.assignedTo);
+      triedPerformers.add(performerId);
+      // await assignLeadToPerformer(leadId, performerId, triedPerformers); // Skip current performer
+      await assignLeadToPerformer(leadId, triedPerformers);
     });
 
     socket.on('disconnect', () => {
