@@ -259,6 +259,7 @@ const server = createServer((req, res) => {
       });
       const triedPerformers = new Set();
       triedPerformers.add(parseInt(data.performerId));
+       if (lead.assignedTo) triedPerformers.add(lead.assignedTo);
       await assignLeadToPerformer(leadId, parseInt(data.performerId), triedPerformers); // Skip current performer
     });
 
