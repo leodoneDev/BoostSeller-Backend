@@ -8,7 +8,7 @@ export async function POST(req: Request) {
     const stages = await prisma.stage.findMany({
         where: {
             id: {
-                lte: stageId,
+                lte: parseInt(stageId),
             }
         }
     });
