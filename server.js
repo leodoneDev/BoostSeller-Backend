@@ -303,7 +303,7 @@ const server = createServer((req, res) => {
       await prisma.lead.update({
         where: { id: leadId },
         data: {
-          assignedTo: assignedPerformerUserId.id,
+          assignedTo: assignedPerformer.id,
           status: 'assigned',
           assignedAt: new Date(),
         },
@@ -311,7 +311,7 @@ const server = createServer((req, res) => {
 
       await prisma.performer.update({
         where: {
-          id: assignedPerformerUserId.id,
+          id: assignedPerformer.id,
         },
         data: {
           assignedCount: {
