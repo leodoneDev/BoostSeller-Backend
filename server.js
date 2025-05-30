@@ -358,7 +358,7 @@ const server = createServer((req, res) => {
             interest: true,
           }, 
         });
-        if (updatedLead.status === 'assigned' &&  updatedLead.assignedTo === nextPerformer.id ) {
+        if (updatedLead.status === 'assigned' &&  updatedLead.assignedTo === assignedPerformer.id ) {
           const escalationNotification = await prisma.notification.create({
             data: {
               receiveId: assignedPerformer.userId, 
