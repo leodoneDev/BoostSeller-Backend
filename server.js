@@ -449,7 +449,7 @@ const server = createServer((req, res) => {
   socket.on('lead_skip', async (data) => {
       
       const userId = parseInt(data.userId);
-
+      const performerId = parseInt(data.performerId);
       const lead = await prisma.lead.findUnique({
         where: {
           registerId: data.leadId,
