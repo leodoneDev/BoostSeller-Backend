@@ -16,42 +16,25 @@ export async function POST(req: Request) {
             data: { email: address, code: otp, expiresAt: expires,},
           });
 
-        // const transporter = nodemailer.createTransport({
-        //   host: process.env.SMTP_HOST,
-        //   port: process.env.SMTP_PORT,
-        //   secure: true, 
-        //   auth: {
-        //     user: process.env.EMAIL_USER,
-        //     pass: process.env.EMAIL_PASS,
-        //   },
-        // } as SMTPTransport.Options);
-
-        // const mailOptions = {
-        //   from: process.env.EMAIL_USER,
-        //   to: address,
-        //   subject: 'Your OTP Code',
-        //   html: `<p>Your OTP code is <b>${otp}</b>. It will expire in 5 minutes.</p>`,
-        // };
-
-        // await transporter.sendMail(mailOptions);
-
         const transporter = nodemailer.createTransport({
-          service: 'gmail', // or use 'hotmail', 'yahoo', 'smtp.yourdomain.com'
+          host: process.env.SMTP_HOST,
+          port: process.env.SMTP_PORT,
+          secure: true, 
           auth: {
-            user: process.env.EMAIL_USER, // e.g., your.email@gmail.com
-            pass: process.env.EMAIL_PASS  // app password or actual password
-          }
-        });
+            user: process.env.SMTP_USER,
+            pass: process.env.SMTP_PASS,
+          },
+        } as SMTPTransport.Options);
 
         const mailOptions = {
-          from: process.env.EMAIL_USER,
+          from: process.env.SMTP_USER,
           to: address,
           subject: 'Your OTP Code',
           html: `<p>Your OTP code is <b>${otp}</b>. It will expire in 5 minutes.</p>`,
         };
 
         await transporter.sendMail(mailOptions);
-        
+
         return new Response(JSON.stringify({error: false,  message: 'OTP sent successfully! Please check your email.' }), {
           status: 200,
         });
