@@ -71,7 +71,9 @@ model Lead {
   stageId       Int  			@map("stage_id")
   createdAt     DateTime  @default(now()) @map("created_at")
   updatedAt     DateTime  @default(now()) @updatedAt @map("updated_at")
+  triedPerformerIds  Int[]  @map("tired_performer_ids")
   interest      Interest  @relation(fields: [interestId], references: [id])
+  
 }
 
 model Stage {
