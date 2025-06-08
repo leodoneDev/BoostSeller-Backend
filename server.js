@@ -64,33 +64,50 @@ const server = createServer((req, res) => {
 
     socket.on('lead_added', async (data) => {
 
-      await assignLeadToPerformer(data.id);
+      console.log(data);
+      await assignLeadToPerformer(parseInt(data.id));
 
     });
 
     async function assignLeadToPerformer(leadId) {
 
-      const lead = await prisma.lead.findUnique({ where: { id: leadId } });
+      const lead = await prisma.lead.findUnique({ 
+        where: { id: leadId },
+        include: {
+          interest: true,
+        } 
+      
+      });
       const triedPerformerIds = lead.triedPerformerIds;
-
-      if (lead.status !== 'assigned' && lead.status !== 'pending') {
-        console.log('Lead already processed:', lead.status);
-        return;
-      }
-
+      const intersteId = lead.interest.id;
+      const assignedGroup= await prisma.group.findUnique({
+        where : {
+          interestId: intersteId,
+        }
+      });
+      const assignedGroupId = assignedGroup.id;
       const setting = await prisma.setting.findFirst();
-      const assignPeriod = setting.assignPeriod * 1000;
-
+      const assignPeriod = setting.assignPeriod;
+      const performLimit = setting.performLimit;
       const performers = await prisma.performer.findMany({
         where: {
           available: true,
           id: {
-            notIn: Array.from(triedPerformerIds),
-          }
+            // notIn: Array.from(triedPerformerIds),
+            notIn: triedPerformerIds ?? [],
+          },
+          groupIds : {
+            has: assignedGroupId,
+          },
+          
         },
       });
 
-      const rankedPerformers = performers
+      const filteredPerformers = performers.filter(p =>
+        (p.acceptedCount - p.closedCount - p.completedCount) <= performLimit
+      );
+
+      const rankedPerformers = filteredPerformers
       .map(performer => {
         const acceptedCount = performer.acceptedCount;
         const completedCount = performer.completedCount;
@@ -99,7 +116,9 @@ const server = createServer((req, res) => {
         const conversion = acceptedCount === 0 
         ? 0
         : completedCount / acceptedCount;
-        const responseSpeed = 1 - (avgResponseTime / assignPeriod);
+        const responseSpeed = avgResponseTime === 0 
+        ? 0
+        : 1 - (avgResponseTime / assignPeriod);
         const acceptanceRatio = assignedCount === 0 
         ? 0
         : acceptedCount / assignedCount;
@@ -115,10 +134,45 @@ const server = createServer((req, res) => {
       console.log(assignedPerformer);
       if (!assignedPerformer) {
         console.log('No more performers to assign');
-        await prisma.lead.update({
+        const penddingLead = await prisma.lead.update({
           where: { id: leadId },
-          data: { status: 'pendding' },
+          data: { 
+            status: 'pendding',
+            triedPerformerIds: [],
+           },
+          include: {
+            interest: true,
+          },
         });
+        const addedByHostess = await prisma.hostess.findUnique({
+          where: {
+            id: penddingLead.addedBy,
+          },
+        });
+        
+        const hostessSocket = clients.get(addedByHostess.userId.toString());
+        const hostessNotification = await prisma.notification.create({
+          data: {
+            receiveId: addedByHostess.userId,
+            title: 'New lead is pendding',
+            message: `A new lead - ${penddingLead.name} is pendding.`,
+            isRead: false,
+          },
+        });
+        if (hostessSocket) {
+        hostessSocket.emit('lead_pendding', {
+          type: 'pendding',
+          lead: penddingLead,
+          message: `A new lead - ${penddingLead.name} is penddding.`,
+          hostessNotification,
+        });
+      } else {
+        const user = await prisma.user.findUnique({
+          where: { id: addedByHostess.userId },
+        });
+        sendPushNotification(user.fcmToken, '📢 New Lead is pendding', `A new lead - ${penddingLead.name} is penddding.`);
+      }
+
         return;
       }
 
@@ -134,12 +188,15 @@ const server = createServer((req, res) => {
       const assignedPerformerUserId = assignedPerformer.userId.toString();
       const performerSocket = clients.get(assignedPerformerUserId);
 
-      await prisma.lead.update({
+      const assignedLead = await prisma.lead.update({
         where: { id: leadId },
         data: {
           assignedTo: assignedPerformer.id,
           status: 'assigned',
           assignedAt: new Date(),
+        },
+        include: {
+          interest: true,
         },
       });
 
@@ -154,19 +211,11 @@ const server = createServer((req, res) => {
         },
       });
 
-      const leadData = await prisma.lead.findUnique({ 
-        where: { id: leadId },
-        include: {
-          interest: true,
-        }, 
-      
-      });
-
       const notification = await prisma.notification.create({
         data: {
           receiveId: assignedPerformer.userId,
           title: 'New lead is assigned',
-          message: `A new lead - ${leadData.name} has been assigned to you.`,
+          message: `A new lead - ${assignedLead.name} has been assigned to you.`,
           isRead: false,
         },
       });
@@ -174,15 +223,15 @@ const server = createServer((req, res) => {
       if (performerSocket) {
         performerSocket.emit('lead_notification', {
           type: 'assigned',
-          lead: leadData,
-          message: `A new lead - ${leadData.name} has been assigned to you.`,
+          lead: assignedLead,
+          message: `A new lead - ${assignedLead.name} has been assigned to you.`,
           notification,
         });
       } else {
         const user = await prisma.user.findUnique({
           where: { id: assignedPerformer.userId },
         });
-        sendPushNotification(user.fcmToken, '📢 New Lead Assigned', `A new lead - ${leadData.name} has been assigned to you.`);
+        sendPushNotification(user.fcmToken, '📢 New Lead Assigned', `A new lead - ${assignedLead.name} has been assigned to you.`);
       }
 
       setTimeout(async () => {
@@ -221,7 +270,7 @@ const server = createServer((req, res) => {
           }
           await assignLeadToPerformer(leadId);
         } 
-      }, assignPeriod);
+      }, assignPeriod * 1000);
     }
 
   socket.on('lead_skip', async (data) => {
@@ -231,7 +280,10 @@ const server = createServer((req, res) => {
       const lead = await prisma.lead.findUnique({
         where: {
           registerId: data.leadId,
-        }
+        },
+        include: {
+          interest: true,
+        },
       });
       
       if (!lead || lead.status !== 'assigned') return;

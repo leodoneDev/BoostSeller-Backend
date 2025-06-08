@@ -4,23 +4,22 @@ const prisma = new PrismaClient();
 
 export async function POST(req: Request) {
   try {
-    const { stageId } = await req.json();
-    
-    const curStage = await prisma.stage.findUnique({
-        where: {
-            id: parseInt(stageId),
-        },
-    });
+    const { registerId } = await req.json();
 
-    if (curStage === null) {
-        return new Response(JSON.stringify({error: true, message: "Sales stage are not defined. please wait until configured stage setting." }), {});
-    }
-    
-    const fields = curStage.requiredFields;
+    const lead = await prisma.lead.update({
+      where: {
+        registerId: registerId,
+      },
+     data: {
+      status: 'closed',
+      assignedTo: null,
+      triedPerformerIds: [],
+     },
+      
+    });
 
     return new Response(JSON.stringify({
       error: false,
-      fields: fields,
     }), {
       status: 200,
     });
@@ -29,5 +28,3 @@ export async function POST(req: Request) {
     return new Response(JSON.stringify({error: true, message: "Failed to close new lead. Please try again." }), {});
   }
 }
-
-

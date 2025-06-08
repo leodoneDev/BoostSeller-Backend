@@ -140,6 +140,7 @@
 import { createWriteStream, existsSync, mkdirSync } from 'fs';
 import { join } from 'path';
 import { PrismaClient } from '@prisma/client';
+import next from 'next';
 
 
 const prisma = new PrismaClient();
@@ -178,6 +179,12 @@ export async function POST(req: Request) {
     }
 
     const leadRegisterId = formFields['leadRegisterId'];
+    const acceptedLead = await prisma.lead.findUnique({
+      where : {
+        registerId: leadRegisterId,
+      },
+    });
+    const interestId = acceptedLead?.interestId;
     const stageId = formFields['stageId'];
 
     if (!leadRegisterId || !stageId) {
@@ -188,15 +195,29 @@ export async function POST(req: Request) {
          headers: { 'Content-Type': 'application/json' },
       });
     }
-
+    if (acceptedLead === null) return;
+    await prisma.lead_stage_mapping.create({
+      data: {
+        leadId: acceptedLead.id,
+        stageId: parseInt(stageId),
+        currentValue: formFields,
+      },
+    });
+    const curStage = await prisma.stage.findUnique({
+      where: {
+        id: parseInt(stageId),
+      },
+    });
+    const curStageSequence = curStage?.sequence;
     const nextStage = await prisma.stage.findFirst({
       where: {
-        id: {
-          gt: parseInt(stageId),
+        interestId: interestId,
+        sequence: {
+          gt: curStageSequence,
         }
       },
       orderBy: {
-        id: 'asc'
+        sequence: 'asc'
       }
     });
 
@@ -208,8 +229,9 @@ export async function POST(req: Request) {
         status: 200,
       });
     } 
+
     const nextStageId = nextStage.id;
-    const upldatedLead = await prisma.lead.update({
+    await prisma.lead.update({
       where: {
         registerId: leadRegisterId,
       },
@@ -219,13 +241,6 @@ export async function POST(req: Request) {
       }
     });
 
-    await prisma.lead_stage_mapping.create({
-      data: {
-        leadId: upldatedLead.id,
-        stageId: parseInt(stageId),
-        currentValue: formFields,
-      },
-    });
 
     return new Response(JSON.stringify({
       error: false,

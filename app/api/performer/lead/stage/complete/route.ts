@@ -2,9 +2,14 @@
 import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
-export async function GET() {
+export async function POST(req: Request) {
   try {
+    const { interestId } = await req.json();
+    console.log(interestId);
     const stages = await prisma.stage.findMany({
+      where: {
+        interestId: parseInt(interestId),
+      },
       orderBy: {
         sequence: 'asc',
       }

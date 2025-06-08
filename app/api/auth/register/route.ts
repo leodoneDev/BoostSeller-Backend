@@ -49,7 +49,8 @@ export async function POST(req: Request) {
         }
         const performer = await prisma.performer.create({ 
           data: { 
-            userId: user.id 
+            userId: user.id,
+            groupIds: [], 
           } 
         });
       }

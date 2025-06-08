@@ -14,17 +14,16 @@ export async function POST(req: Request) {
       return new Response(JSON.stringify({error: true, message: "User not found" }), {});
     }
 
-    const updatedUser = await prisma.user.update(
-      { 
-        where: { email },
-        data: {fcmToken}, 
-    });
-
-
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return new Response(JSON.stringify({ error: true, message: "Password is Invalid. Please enter correct password." }), {});
     }
+
+    await prisma.user.update(
+      { 
+        where: { email },
+        data: {fcmToken}, 
+    });
 
     let hostess  = {};
     let performer = {};

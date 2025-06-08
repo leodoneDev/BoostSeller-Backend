@@ -4,10 +4,11 @@ const prisma = new PrismaClient();
 
 export async function POST(req: Request) {
   try {
-    const { registerId, performerId } = await req.json();
+    const { registerId, performerId,  interestId } = await req.json();
     const paresedPerformerId = parseInt(performerId);
     const firstStage = await prisma.stage.findFirst({
       where: {
+        interestId: parseInt(interestId),
         sequence: 1,
       },
     });
